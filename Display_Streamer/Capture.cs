@@ -21,6 +21,8 @@ namespace Display_Streamer
         bool selectStart = false;
         public Pen selectPen;
 
+        Bitmap first_frame;
+
         public Capture()
         {
             InitializeComponent();
@@ -62,13 +64,25 @@ namespace Display_Streamer
 
             graphics.CopyFromScreen(selectX, selectY, 0, 0, new Size(selectWidth, selectHeight), CopyPixelOperation.SourceCopy);
 
-            for (int i = 0; i < 100; i++)
-            {
-                for (int j = 0; j < 100; j++)
-                {
-                    bmp.SetPixel(i, j, Color.Red);
-                }
 
+            if(first_frame == null)
+            {
+                first_frame = new Bitmap(bmp);
+            }
+            else
+            {
+                for (int i = 0; i < selectWidth; i++)
+                {
+                    for (int j = 0; j < selectHeight; j++)
+                    {
+                        Color pixel_old = first_frame.GetPixel(i, j);
+                        Color pixel_new = bmp.GetPixel(i, j);
+                        if(pixel_old == pixel_new)
+                        {
+                            Console.WriteLine("Same pixel " + i + j);
+                        }
+                    }
+                }
             }
 
             var stream = new MemoryStream();
