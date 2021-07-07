@@ -1,10 +1,4 @@
-﻿using Fleck;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Drawing.Drawing2D;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
@@ -16,18 +10,17 @@ namespace Display_Streamer
     {
         int selectX;
         int selectY;
-        int selectWidth;
-        int selectHeight;
+        public int selectWidth;
+        public int selectHeight;
         bool selectStart = false;
         public Pen selectPen;
+        Rectangle captureRect;
 
-        Bitmap first_frame;
 
         public Capture()
         {
             InitializeComponent();
             captureDisplay();
-
         }
 
         private void captureDisplay()
@@ -57,41 +50,6 @@ namespace Display_Streamer
             Cursor = Cursors.Cross;
         }
 
-        private MemoryStream captureArea()
-        {
-            var bmp = new Bitmap(selectWidth, selectHeight, PixelFormat.Format32bppArgb);
-            Graphics graphics = Graphics.FromImage(bmp);
-
-            graphics.CopyFromScreen(selectX, selectY, 0, 0, new Size(selectWidth, selectHeight), CopyPixelOperation.SourceCopy);
-
-
-            if(first_frame == null)
-            {
-                first_frame = new Bitmap(bmp);
-            }
-            else
-            {
-                for (int i = 0; i < selectWidth; i++)
-                {
-                    for (int j = 0; j < selectHeight; j++)
-                    {
-                        Color pixel_old = first_frame.GetPixel(i, j);
-                        Color pixel_new = bmp.GetPixel(i, j);
-                        if(pixel_old == pixel_new)
-                        {
-                            Console.WriteLine("Same pixel " + i + j);
-                        }
-                    }
-                }
-            }
-
-            var stream = new MemoryStream();
-            bmp.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
-
-            return stream;
-
-        }
-
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
             selectX = e.X;
@@ -105,7 +63,8 @@ namespace Display_Streamer
 
             this.Hide();
 
-            Server server = new Server(captureArea(), new Size(selectWidth, selectHeight));
+            captureRect = new Rectangle(selectX, selectY, selectWidth, selectHeight);
+            Server server = new Server(captureRect);
             server.Show();
 
         }

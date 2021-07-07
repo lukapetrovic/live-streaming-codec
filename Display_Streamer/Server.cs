@@ -1,11 +1,7 @@
 ﻿using Fleck;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Text;
 using System.Timers;
 using System.Windows.Forms;
 
@@ -16,30 +12,32 @@ namespace Display_Streamer
 
         WebSocketServer server;
         MemoryStream image;
+        Rectangle captureArea;
 
-        public Server(MemoryStream stream, System.Drawing.Size size)
+        public Server(Rectangle captureRect)
         {
             InitializeComponent();
-            pictureBox1.Size = new System.Drawing.Size(size.Width, size.Height);
-            pictureBox1.Image = Image.FromStream(stream);
-            image = stream;
+
+            captureArea = captureRect;
+            pictureBox1.Size = new System.Drawing.Size(captureRect.Width, captureRect.Height);
+            //pictureBox1.Image = Image.FromStream(capture.captureArea());
+
             start();
 
         }
 
         private void start()
         {
-
-            System.Timers.Timer screenshotTimer = new System.Timers.Timer();
-
             server = new WebSocketServer("ws://0.0.0.0:3000");
             server.Start(socket =>
             {
                 socket.OnOpen = () =>
                 {
                     Console.WriteLine("Open!");
-                    screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, socket);
-                    screenshotTimer.Interval = 1000;
+                    Streamer streamer = new Streamer();
+                    System.Timers.Timer screenshotTimer = new System.Timers.Timer();
+                    screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, socket, streamer);
+                    screenshotTimer.Interval = 5000;
                     screenshotTimer.Enabled = true;
                 };
                 socket.OnClose = () => Console.WriteLine("Close!");
@@ -48,10 +46,13 @@ namespace Display_Streamer
         }
 
         // Specify what you want to happen when the Elapsed event is raised.
-        private void OnTimedEvent(ElapsedEventArgs e, IWebSocketConnection socket)
+        private void OnTimedEvent(ElapsedEventArgs e, IWebSocketConnection socket, Streamer streamer)
         {
+            image = streamer.capture(captureArea);
             socket.Send(image.ToArray());
         }
+
+        
 
         private void button1_Click(object sender, EventArgs e)
         {
