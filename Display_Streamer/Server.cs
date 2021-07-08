@@ -58,8 +58,8 @@ namespace Display_Streamer
         {
             server.Dispose();
             this.Close();
-            Capture capture = new Capture();
-            capture.Show();
+            Dashboard dashboard = new Dashboard();
+            dashboard.Show();
         }
     }
 }

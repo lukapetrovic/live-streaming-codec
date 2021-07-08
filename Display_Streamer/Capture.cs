@@ -15,11 +15,13 @@ namespace Display_Streamer
         bool selectStart = false;
         public Pen selectPen;
         Rectangle captureRect;
+        Screen screen;
 
 
-        public Capture()
+        public Capture(Screen selectedScreen)
         {
             InitializeComponent();
+            screen = selectedScreen;
             captureDisplay();
         }
 
@@ -28,13 +30,14 @@ namespace Display_Streamer
             selectPen = new Pen(Color.Red, 3);
 
             //Create the Bitmap
-            Bitmap printscreen = new Bitmap(Screen.PrimaryScreen.Bounds.Width,
-                                     Screen.PrimaryScreen.Bounds.Height);
+            Bitmap printscreen = new Bitmap(screen.Bounds.Width,
+                                     screen.Bounds.Height);
+
             //Create the Graphic Variable with screen Dimensions
             Graphics graphics = Graphics.FromImage(printscreen);
 
             //Copy Image from the screen
-            graphics.CopyFromScreen(0, 0, 0, 0, printscreen.Size);
+            graphics.CopyFromScreen(screen.Bounds.X, screen.Bounds.Y, 0, 0, printscreen.Size);
 
             //Create a temporal memory stream for the image
             using (MemoryStream s = new MemoryStream())
