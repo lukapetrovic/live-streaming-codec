@@ -36,9 +36,9 @@ namespace Display_Streamer
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(305, 66);
+            this.button1.Location = new System.Drawing.Point(310, 81);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(112, 34);
+            this.button1.Size = new System.Drawing.Size(106, 33);
             this.button1.TabIndex = 1;
             this.button1.Text = "Snip";
             this.button1.UseVisualStyleBackColor = true;
@@ -47,7 +47,7 @@ namespace Display_Streamer
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(58, 67);
+            this.comboBox1.Location = new System.Drawing.Point(103, 81);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(182, 33);
             this.comboBox1.TabIndex = 3;
@@ -55,7 +55,7 @@ namespace Display_Streamer
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(58, 25);
+            this.label1.Location = new System.Drawing.Point(103, 39);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(125, 25);
             this.label1.TabIndex = 4;

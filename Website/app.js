@@ -48,14 +48,14 @@ function phaseOne(blob) {
 
 function phaseTwo(difference) {
 
-    let imageData = canvas.getImageData(0, 0, 10, 10);
+    let imageData = canvas.getImageData(0, 0, img.width, img.height);
+    console.log(img.width, img.height);
 
     let response = new Response(difference);
     response.text().then((text) => {
         let pixelsToChange = JSON.parse(text);
-        console.log(pixelsToChange);
         for (let i = 0; i < pixelsToChange.length; i++) {
-            imageData.data[i] = 233;
+            imageData.data[i] = pixelsToChange[i].red;
         }
     })
 

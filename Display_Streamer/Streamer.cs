@@ -1,7 +1,5 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Bson;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -21,6 +19,9 @@ namespace Display_Streamer
         {
             public int row;
             public int col;
+            public int red;
+            public int green;
+            public int blue;
         }
 
         public MemoryStream capture(Rectangle captureArea)
@@ -82,6 +83,9 @@ namespace Display_Streamer
                         Console.WriteLine("Same pixel " + i + j);
                         pixels[pixelsChangedNum].row = i;
                         pixels[pixelsChangedNum].col = j;
+                        pixels[pixelsChangedNum].red = pixel_new.R;
+                        pixels[pixelsChangedNum].green = pixel_new.G;
+                        pixels[pixelsChangedNum].blue = pixel_new.B;
                         pixelsChangedNum++;
                     }
                 }
