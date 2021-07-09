@@ -14,14 +14,14 @@ socket.onopen = (e) => {
 };
 
 socket.onmessage = (event) => {
-    console.log(`[message] Image recieved from the server`);
-
-    if (msgNum === 1) {
+    if (msgNum == 1) {
+        console.log(`[message] Image recieved from the server`);
         phaseOne(event.data);
+        msgNum++;
     } else {
-        phaseTwo(event.data);
         console.log(`[message] Frame difference recieved`);
-        console.log(event.data);
+        phaseTwo(event.data);
+        msgNum++;
     }
 
 };
@@ -40,31 +40,24 @@ socket.onerror = (error) => {
     console.log(`[error] ${error.message}`);
 };
 
-function phaseOne(image) {
-    img.src = "placeholder.png";
+function phaseOne(blob) {
     let urlCreator = window.URL || window.webkitURL;
-    let imageUrl = urlCreator.createObjectURL(image);
-    document.querySelector("#image").src = imageUrl;
-
-    msgNum++;
+    let imageUrl = urlCreator.createObjectURL(blob);
+    img.src = imageUrl;
 }
 
 function phaseTwo(difference) {
 
-    let response = new Response(difference);
-    response.text().then((text) => {
-        let matrix = JSON.parse(text);
-        console.log(matrix);
-    })
-
     let imageData = canvas.getImageData(0, 0, 10, 10);
 
-    for (let i = 0; i < imageData.data.length; i += 4) {
-        imageData.data[i] = 233;
-        imageData.data[i + 1] = 144;
-        imageData.data[i + 2] = 144;
-        imageData.data[i + 3] = 0.5;
-    }
+    let response = new Response(difference);
+    response.text().then((text) => {
+        let pixelsToChange = JSON.parse(text);
+        console.log(pixelsToChange);
+        for (let i = 0; i < pixelsToChange.length; i++) {
+            imageData.data[i] = 233;
+        }
+    })
 
     canvas.putImageData(imageData, 0, 0);
 
