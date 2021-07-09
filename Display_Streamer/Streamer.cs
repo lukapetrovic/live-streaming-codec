@@ -6,11 +6,18 @@ using System.IO;
 using System.Text;
 
 namespace Display_Streamer
+
 {
     class Streamer
     {
-        Bitmap first_frame;
+        Bitmap last_frame;
         bool working = false;
+
+        struct Pixel
+        {
+            public int row;
+            public int col;
+        }
 
         public MemoryStream capture(Rectangle captureArea)
         {
@@ -22,15 +29,14 @@ namespace Display_Streamer
 
                 graphics.CopyFromScreen(captureArea.X, captureArea.Y, 0, 0, new Size(captureArea.Width, captureArea.Height), CopyPixelOperation.SourceCopy);
 
-                int[] row = new int[captureArea.Width * captureArea.Height];
-                int rowNum = 0;
+                int pixelsChangedNum = 0;
+                Pixel[] pixels = new Pixel[captureArea.Width * captureArea.Height];
                 var stream = new MemoryStream();
 
                 // Slanje prvog frejma
-                if (first_frame == null)
+                if (last_frame == null)
                 {
-                    first_frame = new Bitmap(bmp);
-                    first_frame.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+                    last_frame.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
                 }
                 // Slanje razlike
                 else
@@ -40,22 +46,27 @@ namespace Display_Streamer
                     {
                         for (int j = 0; j < captureArea.Height; j++)
                         {
-                            Color pixel_old = first_frame.GetPixel(i, j);
+                            Color pixel_old = last_frame.GetPixel(i, j);
                             Color pixel_new = bmp.GetPixel(i, j);
                             if (pixel_old == pixel_new)
                             {
                                 Console.WriteLine("Same pixel " + i + j);
-                                row[rowNum] = i;
+                                pixels[pixelsChangedNum].row = i;
+                                pixels[pixelsChangedNum].col = j;
+                                pixelsChangedNum++;
                             }
                         }
-                        rowNum++;
+                        
                     }
-                    byte[] rowByte = new byte[rowNum];
+                    //byte[] rowByte = new byte[rowNum];
 
-                    Buffer.BlockCopy(row, 0, rowByte, 0, rowNum);
+                    //Buffer.BlockCopy(row, 0, rowByte, 0, rowNum);
 
-                    stream.Write(rowByte, 0, rowNum);
+                    //stream.Write(rowByte, 0, rowNum);
+                    stream.Write(new byte[3], 0, 3);
                 }
+                // Novi frejm se uzima za sledeci krug
+                last_frame = new Bitmap(bmp);
                 working = false;
                 return stream;
             }
