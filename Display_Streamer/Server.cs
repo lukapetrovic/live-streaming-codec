@@ -37,7 +37,7 @@ namespace Display_Streamer
                     Streamer streamer = new Streamer();
                     System.Timers.Timer screenshotTimer = new System.Timers.Timer();
                     screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, socket, streamer);
-                    screenshotTimer.Interval = 5000;
+                    screenshotTimer.Interval = 1000;
                     screenshotTimer.Enabled = true;
                 };
                 socket.OnClose = () => Console.WriteLine("Close!");

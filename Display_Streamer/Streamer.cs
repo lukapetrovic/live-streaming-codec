@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -21,9 +23,9 @@ namespace Display_Streamer
 
         public MemoryStream capture(Rectangle captureArea)
         {
-            if (!working)
+            if (true)
             {
-                working = true;
+                /*working = true;
                 var bmp = new Bitmap(captureArea.Width, captureArea.Height, PixelFormat.Format32bppArgb);
                 Graphics graphics = Graphics.FromImage(bmp);
 
@@ -67,8 +69,21 @@ namespace Display_Streamer
                 }
                 // Novi frejm se uzima za sledeci krug
                 last_frame = new Bitmap(bmp);
-                working = false;
-                return stream;
+                working = false;*/
+
+                MemoryStream ms = new MemoryStream();
+                Pixel[] testPixel = new Pixel[2];
+                testPixel[0].col = 10;
+                testPixel[0].row = 30;
+
+                testPixel[1].col = 10;
+                testPixel[1].row = 30;
+
+                string json = JsonConvert.SerializeObject(testPixel);
+                byte[] jsonByte = Encoding.ASCII.GetBytes(json);
+                ms.Write(jsonByte, 0, jsonByte.Length);
+
+                return ms;
             }
             else
             {
