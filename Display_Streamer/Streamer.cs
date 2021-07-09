@@ -81,8 +81,8 @@ namespace Display_Streamer
                     if (pixel_old != pixel_new)
                     {
                         Console.WriteLine("Same pixel " + i + j);
-                        pixels[pixelsChangedNum].row = i;
-                        pixels[pixelsChangedNum].col = j;
+                        pixels[pixelsChangedNum].row = j;
+                        pixels[pixelsChangedNum].col = i;
                         pixels[pixelsChangedNum].red = pixel_new.R;
                         pixels[pixelsChangedNum].green = pixel_new.G;
                         pixels[pixelsChangedNum].blue = pixel_new.B;
@@ -91,8 +91,15 @@ namespace Display_Streamer
                 }
             }
 
+            Pixel[] pixelsResized = new Pixel[pixelsChangedNum];
+            for (int i = 0; i < pixelsChangedNum; i++)
+            {
+                pixelsResized[i] = pixels[i];
+            }
+
+
             MemoryStream ms = new MemoryStream();
-            string json = JsonConvert.SerializeObject(pixels);
+            string json = JsonConvert.SerializeObject(pixelsResized);
             byte[] jsonByte = Encoding.ASCII.GetBytes(json);
             ms.Write(jsonByte, 0, jsonByte.Length);
 

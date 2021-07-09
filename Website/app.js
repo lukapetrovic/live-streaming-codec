@@ -49,17 +49,17 @@ function phaseOne(blob) {
 function phaseTwo(difference) {
 
     let imageData = canvas.getImageData(0, 0, img.width, img.height);
-    console.log(img.width, img.height);
-
     let response = new Response(difference);
+
     response.text().then((text) => {
         let pixelsToChange = JSON.parse(text);
         for (let i = 0; i < pixelsToChange.length; i++) {
-            imageData.data[i] = pixelsToChange[i].red;
+            let pixelNum = (pixelsToChange[i].col * 4) + (pixelsToChange[i].row * img.width * 4);
+            imageData.data[pixelNum] = pixelsToChange[i].red;
+            imageData.data[pixelNum + 1] = pixelsToChange[i].green;
+            imageData.data[pixelNum + 2] = pixelsToChange[i].blue;
         }
+        console.log(imageData.data);
+        canvas.putImageData(imageData, 0, 0);
     })
-
-    canvas.putImageData(imageData, 0, 0);
-
-    console.log(imageData);
 }
