@@ -13,6 +13,9 @@ namespace Display_Streamer
         WebSocketServer server;
         MemoryStream image;
         Rectangle captureArea;
+        int connectedDevices = 0;
+        delegate void ChangingDeviceCount();
+        int refreshRate = 1;
 
         public Server(Rectangle captureRect)
         {
@@ -28,6 +31,9 @@ namespace Display_Streamer
 
         private void start()
         {
+            ChangingDeviceCount incrCount = new ChangingDeviceCount(increaseDeviceCount);
+            ChangingDeviceCount descrCount = new ChangingDeviceCount(decreaseDeviceCount);
+
             server = new WebSocketServer("ws://0.0.0.0:3000");
             server.Start(socket =>
             {
@@ -35,12 +41,17 @@ namespace Display_Streamer
                 {
                     Console.WriteLine("Open!");
                     Streamer streamer = new Streamer();
+                    label2.Invoke(incrCount);
                     System.Timers.Timer screenshotTimer = new System.Timers.Timer();
                     screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, socket, streamer);
                     screenshotTimer.Interval = 3000;
                     screenshotTimer.Enabled = true;
                 };
-                socket.OnClose = () => Console.WriteLine("Close!");
+                socket.OnClose = () => 
+                {
+                    Console.WriteLine("Close!");
+                    label2.Invoke(descrCount);
+                };
                 socket.OnMessage = message => Console.WriteLine("Message!");
             });
         }
@@ -52,7 +63,17 @@ namespace Display_Streamer
             socket.Send(image.ToArray());
         }
 
-        
+        public void increaseDeviceCount()
+        {
+            connectedDevices++;
+            label2.Text = connectedDevices.ToString();
+        }
+
+        public void decreaseDeviceCount()
+        {
+            connectedDevices--;
+            label2.Text = connectedDevices.ToString();
+        }
 
         private void button1_Click(object sender, EventArgs e)
         {

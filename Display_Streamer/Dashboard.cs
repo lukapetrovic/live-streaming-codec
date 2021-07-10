@@ -13,7 +13,12 @@ namespace Display_Streamer
                 comboBox1.Items.Add(screen.DeviceName);
                 comboBox1.SelectedIndex = 0;
             }
-            
+
+            comboBox2.Items.Add("1s");
+            comboBox2.Items.Add("2s");
+            comboBox2.Items.Add("3s");
+            comboBox2.SelectedIndex = 0;
+
         }
 
         private void button1_Click(object sender, EventArgs e)
