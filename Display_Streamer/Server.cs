@@ -1,6 +1,7 @@
 ﻿using Fleck;
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Timers;
 using System.Windows.Forms;
@@ -22,8 +23,6 @@ namespace Display_Streamer
             InitializeComponent();
 
             captureArea = captureRect;
-            pictureBox1.Size = new System.Drawing.Size(captureRect.Width, captureRect.Height);
-            //pictureBox1.Image = Image.FromStream(capture.captureArea());
 
             start();
 

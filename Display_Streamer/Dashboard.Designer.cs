@@ -38,7 +38,7 @@ namespace Display_Streamer
             // 
             // button1
             // 
-            this.button1.Location = new System.Drawing.Point(376, 91);
+            this.button1.Location = new System.Drawing.Point(399, 109);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(106, 33);
             this.button1.TabIndex = 1;
@@ -49,7 +49,7 @@ namespace Display_Streamer
             // comboBox1
             // 
             this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(165, 62);
+            this.comboBox1.Location = new System.Drawing.Point(179, 54);
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(182, 33);
             this.comboBox1.TabIndex = 3;
@@ -57,7 +57,7 @@ namespace Display_Streamer
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(22, 65);
+            this.label1.Location = new System.Drawing.Point(36, 54);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(125, 25);
             this.label1.TabIndex = 4;
@@ -66,7 +66,7 @@ namespace Display_Streamer
             // comboBox2
             // 
             this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(165, 125);
+            this.comboBox2.Location = new System.Drawing.Point(179, 109);
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(182, 33);
             this.comboBox2.TabIndex = 5;
@@ -74,7 +74,7 @@ namespace Display_Streamer
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(22, 125);
+            this.label2.Location = new System.Drawing.Point(36, 109);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(109, 25);
             this.label2.TabIndex = 6;
@@ -84,7 +84,7 @@ namespace Display_Streamer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(10F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(520, 208);
+            this.ClientSize = new System.Drawing.Size(534, 208);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.comboBox2);
             this.Controls.Add(this.label1);
