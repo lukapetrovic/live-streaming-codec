@@ -60,6 +60,7 @@ namespace Display_Streamer
             this.Controls.Add(this.label1);
             this.Controls.Add(this.button1);
             this.Name = "Server";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Server_FormClosed);
             this.ResumeLayout(false);
             this.PerformLayout();
 

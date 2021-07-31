@@ -63,7 +63,7 @@ namespace Display_Streamer
         {
             selectStart = false;
 
-            this.Hide();
+            this.Close();
 
             captureRect = new Rectangle(selectX, selectY, selectWidth, selectHeight);
             Server server = new Server(captureRect);

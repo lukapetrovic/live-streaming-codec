@@ -2,8 +2,11 @@ let socket = new WebSocket("ws://localhost:3000");
 let msgNum = 1;
 
 let canvas = document.getElementById('canvas').getContext('2d');
+let canvasDOM = document.getElementById('canvas');
 let img = new Image();
-img.onload = function () {
+img.onload = () => {
+    canvasDOM.width = img.width;
+    canvasDOM.height = img.height;
     canvas.drawImage(img, 0, 0);
 };
 
@@ -23,7 +26,6 @@ socket.onmessage = (event) => {
         phaseTwo(event.data);
         msgNum++;
     }
-
 };
 
 socket.onclose = (event) => {

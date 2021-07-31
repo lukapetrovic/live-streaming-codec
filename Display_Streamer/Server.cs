@@ -16,7 +16,6 @@ namespace Display_Streamer
         Rectangle captureArea;
         int connectedDevices = 0;
         delegate void ChangingDeviceCount();
-        int refreshRate = 1;
 
         public Server(Rectangle captureRect)
         {
@@ -40,16 +39,16 @@ namespace Display_Streamer
                 {
                     Console.WriteLine("Open!");
                     Streamer streamer = new Streamer();
-                    label2.Invoke(incrCount);
+                    //label2.Invoke(incrCount);
                     System.Timers.Timer screenshotTimer = new System.Timers.Timer();
                     screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, socket, streamer);
-                    screenshotTimer.Interval = 3000;
+                    screenshotTimer.Interval = Config.refresh_rate;
                     screenshotTimer.Enabled = true;
                 };
                 socket.OnClose = () => 
                 {
                     Console.WriteLine("Close!");
-                    label2.Invoke(descrCount);
+                    //label2.Invoke(descrCount);
                 };
                 socket.OnMessage = message => Console.WriteLine("Message!");
             });
@@ -78,8 +77,13 @@ namespace Display_Streamer
         {
             server.Dispose();
             this.Close();
-            Dashboard dashboard = new Dashboard();
-            dashboard.Show();
+            Config.main_form.Show();
+        }
+
+        private void Server_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            server.Dispose();
+            Config.main_form.Show();
         }
     }
 }

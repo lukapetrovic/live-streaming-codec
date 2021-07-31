@@ -1,0 +1,13 @@
+body {
+    margin: 0;
+}
+
+#container {
+    display: flex;
+}
+
+#canvas {
+    max-width: 100%;
+    max-height: 100vh;
+    margin: 0 auto;
+}
