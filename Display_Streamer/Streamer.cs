@@ -17,11 +17,16 @@ namespace Display_Streamer
 
         struct Pixel
         {
-            public int row;
-            public int col;
-            public int red;
-            public int green;
-            public int blue;
+            // row/line
+            public int l;
+            // column
+            public int c;
+            // red
+            public int r;
+            // green
+            public int g;
+            // blue
+            public int b;
         }
 
         public MemoryStream capture(Rectangle captureArea)
@@ -80,12 +85,11 @@ namespace Display_Streamer
                     Color pixel_new = new_frame.GetPixel(i, j);
                     if (pixel_old != pixel_new)
                     {
-                        Console.WriteLine("Same pixel " + i + j);
-                        pixels[pixelsChangedNum].row = j;
-                        pixels[pixelsChangedNum].col = i;
-                        pixels[pixelsChangedNum].red = pixel_new.R;
-                        pixels[pixelsChangedNum].green = pixel_new.G;
-                        pixels[pixelsChangedNum].blue = pixel_new.B;
+                        pixels[pixelsChangedNum].l = j;
+                        pixels[pixelsChangedNum].c = i;
+                        pixels[pixelsChangedNum].r = pixel_new.R;
+                        pixels[pixelsChangedNum].g = pixel_new.G;
+                        pixels[pixelsChangedNum].b = pixel_new.B;
                         pixelsChangedNum++;
                     }
                 }
@@ -97,10 +101,9 @@ namespace Display_Streamer
                 pixelsResized[i] = pixels[i];
             }
 
-
             MemoryStream ms = new MemoryStream();
             string json = JsonConvert.SerializeObject(pixelsResized);
-            byte[] jsonByte = Encoding.ASCII.GetBytes(json);
+            byte[] jsonByte = Encoding.UTF8.GetBytes(json);
             ms.Write(jsonByte, 0, jsonByte.Length);
 
             working = false;

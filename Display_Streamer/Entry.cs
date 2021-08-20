@@ -6,7 +6,7 @@ using System.Windows.Forms;
 
 namespace Display_Streamer
 {
-    static class Program
+    static class Entry
     {
         /// <summary>
         ///  The main entry point for the application.

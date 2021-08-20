@@ -10,6 +10,8 @@ namespace Display_Streamer
             InitializeComponent();
             foreach (Screen screen in Screen.AllScreens)
             {
+                // Device name - not in order
+                // WorkingArea - excluding taskbars, docked windows, and docked tool bars
                 comboBox1.Items.Add(screen.DeviceName);
                 comboBox1.SelectedIndex = 0;
             }

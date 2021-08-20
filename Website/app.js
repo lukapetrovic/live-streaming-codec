@@ -13,7 +13,7 @@ img.onload = () => {
 socket.onopen = (e) => {
     console.log("[open] Connection established");
     console.log("Sending to server");
-    socket.send("My name is John");
+    socket.send("Connection established");
 };
 
 socket.onmessage = (event) => {
@@ -56,12 +56,14 @@ function phaseTwo(difference) {
     response.text().then((text) => {
         let pixelsToChange = JSON.parse(text);
         for (let i = 0; i < pixelsToChange.length; i++) {
-            let pixelNum = (pixelsToChange[i].col * 4) + (pixelsToChange[i].row * img.width * 4);
-            imageData.data[pixelNum] = pixelsToChange[i].red;
-            imageData.data[pixelNum + 1] = pixelsToChange[i].green;
-            imageData.data[pixelNum + 2] = pixelsToChange[i].blue;
+            let pixelNum = (pixelsToChange[i].c * 4) + (pixelsToChange[i].l * img.width * 4);
+            imageData.data[pixelNum] = pixelsToChange[i].r;
+            imageData.data[pixelNum + 1] = pixelsToChange[i].g;
+            imageData.data[pixelNum + 2] = pixelsToChange[i].b;
         }
         console.log(imageData.data);
         canvas.putImageData(imageData, 0, 0);
+    }).catch(error => {
+        console.log(error);
     })
 }
