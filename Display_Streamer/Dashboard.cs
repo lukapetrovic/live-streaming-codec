@@ -1,20 +1,25 @@
 ﻿using System;
 using System.Windows.Forms;
+using System.Drawing;
+using System.Collections.Generic;
 
 namespace Display_Streamer
 {
+
     public partial class Dashboard : Form
     {
+        List<DeviceInfo> screens = MonitorHelper.getScreenDevices();
+
         public Dashboard()
         {
             InitializeComponent();
-            foreach (Screen screen in Screen.AllScreens)
+
+            
+            for (int i = 0; i < screens.Count; i++)
             {
-                // Device name - not in order
-                // WorkingArea - excluding taskbars, docked windows, and docked tool bars
-                comboBox1.Items.Add(screen.DeviceName);
-                comboBox1.SelectedIndex = 0;
+                comboBox1.Items.Add(screens[i].DeviceName);
             }
+            comboBox1.SelectedIndex = 0;
 
             comboBox2.Items.Add("1s");
             comboBox2.Items.Add("2s");
@@ -31,7 +36,7 @@ namespace Display_Streamer
             System.Threading.Thread.Sleep(250);
             Config.main_form = this;
 
-            Capture capture = new Capture(Screen.AllScreens[comboBox1.SelectedIndex]);
+            Capture capture = new Capture(screens[comboBox1.SelectedIndex]);
             capture.Show();
 
         }

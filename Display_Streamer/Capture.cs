@@ -14,13 +14,13 @@ namespace Display_Streamer
         bool selectStart = false;
         public Pen selectPen;
         Rectangle captureRect;
-        Screen screen;
+        DeviceInfo screen;
 
 
-        public Capture(Screen selectedScreen)
+        public Capture(DeviceInfo selectedScreen)
         {
-            InitializeComponent();
             screen = selectedScreen;
+            InitializeComponent();
             captureDisplay();
         }
 
@@ -29,21 +29,20 @@ namespace Display_Streamer
             selectPen = new Pen(Color.Red, 3);
 
             //Create the Bitmap
-            Bitmap printscreen = new Bitmap(screen.Bounds.Width,
-                                     screen.Bounds.Height);
+            Bitmap printscreen = new Bitmap(screen.HorizontalResolution,
+                                     screen.VerticalResolution);
 
             //Create the Graphic Variable with screen Dimensions
             Graphics graphics = Graphics.FromImage(printscreen);
 
             //Copy Image from the screen
-            graphics.CopyFromScreen(screen.Bounds.X, screen.Bounds.Y, 0, 0, printscreen.Size);
+            graphics.CopyFromScreen(screen.MonitorArea.X, screen.MonitorArea.Y, 0, 0, printscreen.Size);
 
             //Create a temporal memory stream for the image
             using (MemoryStream s = new MemoryStream())
             {
                 //save graphic variable into memory
                 printscreen.Save(s, ImageFormat.Bmp);
-                pictureBox1.Size = new System.Drawing.Size(this.Width, this.Height);
                 //set the picture box with temporary stream
                 pictureBox1.Image = Image.FromStream(s);
             }
@@ -65,7 +64,7 @@ namespace Display_Streamer
 
             this.Close();
 
-            captureRect = new Rectangle(selectX + screen.Bounds.X, selectY + screen.Bounds.Y, selectWidth, selectHeight);
+            captureRect = new Rectangle(selectX, selectY, selectWidth, selectHeight);
             Server server = new Server(captureRect);
             server.Show();
 

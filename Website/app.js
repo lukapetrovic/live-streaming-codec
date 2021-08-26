@@ -61,7 +61,7 @@ function phaseTwo(difference) {
             imageData.data[pixelNum + 1] = pixelsToChange[i].g;
             imageData.data[pixelNum + 2] = pixelsToChange[i].b;
         }
-        console.log(imageData.data);
+        console.log(pixelsToChange);
         canvas.putImageData(imageData, 0, 0);
     }).catch(error => {
         console.log(error);
