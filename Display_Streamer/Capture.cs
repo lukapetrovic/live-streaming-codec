@@ -64,7 +64,7 @@ namespace Display_Streamer
 
             this.Close();
 
-            captureRect = new Rectangle(selectX, selectY, selectWidth, selectHeight);
+            captureRect = new Rectangle(selectX + screen.MonitorArea.X, selectY + screen.MonitorArea.Y, selectWidth, selectHeight);
             Server server = new Server(captureRect);
             server.Show();
 

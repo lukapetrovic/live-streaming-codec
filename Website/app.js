@@ -1,4 +1,4 @@
-let socket = new WebSocket("ws://localhost:3000");
+let socket = new WebSocket("ws://172.94.18.86:3000");
 let msgNum = 1;
 
 let canvas = document.getElementById('canvas').getContext('2d');
@@ -52,6 +52,10 @@ function phaseTwo(difference) {
 
     let imageData = canvas.getImageData(0, 0, img.width, img.height);
     let response = new Response(difference);
+
+    /*     response.arrayBuffer().then((buffer) => {
+            const view = new Int32Array(buffer);
+        }) */
 
     response.text().then((text) => {
         let pixelsToChange = JSON.parse(text);

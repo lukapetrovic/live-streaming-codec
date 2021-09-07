@@ -1,5 +1,6 @@
 ﻿using Fleck;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -16,6 +17,10 @@ namespace Display_Streamer
         Rectangle captureArea;
         int connectedDevices = 0;
         delegate void ChangingDeviceCount();
+
+        //Websocket clients container
+        List<IWebSocketConnection> clients = new List<IWebSocketConnection>();
+
 
         public Server(Rectangle captureRect)
         {
@@ -37,9 +42,13 @@ namespace Display_Streamer
             {
                 socket.OnOpen = () =>
                 {
+                    clients.Add(socket);
                     Console.WriteLine("Open!");
                     Streamer streamer = new Streamer();
-                    //label2.Invoke(incrCount);
+                    if (!label2.IsDisposed)
+                    {
+                        label2.Invoke(incrCount);
+                    }
                     System.Timers.Timer screenshotTimer = new System.Timers.Timer();
                     screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, socket, streamer);
                     screenshotTimer.Interval = Config.refresh_rate;
@@ -47,8 +56,19 @@ namespace Display_Streamer
                 };
                 socket.OnClose = () => 
                 {
-                    Console.WriteLine("Close!");
-                    //label2.Invoke(descrCount);
+                    try
+                    {
+                        Console.WriteLine("Close!");
+                        if (!label2.IsDisposed)
+                        {
+                            label2.Invoke(descrCount);
+                        }
+                    }
+                    catch (Exception)
+                    {
+
+                    }
+
                 };
                 socket.OnMessage = message => Console.WriteLine("Message!");
             });
@@ -75,15 +95,23 @@ namespace Display_Streamer
 
         private void button1_Click(object sender, EventArgs e)
         {
-            server.Dispose();
             this.Close();
             Config.main_form.Show();
         }
 
         private void Server_FormClosed(object sender, FormClosedEventArgs e)
         {
-            server.Dispose();
+            closeServer();
             Config.main_form.Show();
+        }
+
+        private void closeServer()
+        {
+            for (int i = 0; i < clients.Count; i++)
+            {
+                clients[i].Close();
+            }
+            server.Dispose();
         }
     }
 }
