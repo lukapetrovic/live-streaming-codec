@@ -53,21 +53,19 @@ function phaseTwo(difference) {
     let imageData = canvas.getImageData(0, 0, img.width, img.height);
     let response = new Response(difference);
 
-    /*     response.arrayBuffer().then((buffer) => {
-            const view = new Int32Array(buffer);
-        }) */
+    response.arrayBuffer().then((buffer) => {
+        try {
+            let view = new Int32Array(buffer);
+            for (let i = 0; i < view.length; i = i + 5) {
+                let pixelNum = (view[i + 1] * 4) + (view[i] * img.width * 4);
+                imageData.data[pixelNum] = view[i + 2];
+                imageData.data[pixelNum + 1] = view[i + 3];
+                imageData.data[pixelNum + 2] = view[i + 4];
+            }
+            canvas.putImageData(imageData, 0, 0);
 
-    response.text().then((text) => {
-        let pixelsToChange = JSON.parse(text);
-        for (let i = 0; i < pixelsToChange.length; i++) {
-            let pixelNum = (pixelsToChange[i].c * 4) + (pixelsToChange[i].l * img.width * 4);
-            imageData.data[pixelNum] = pixelsToChange[i].r;
-            imageData.data[pixelNum + 1] = pixelsToChange[i].g;
-            imageData.data[pixelNum + 2] = pixelsToChange[i].b;
+        } catch (error) {
+            console.log(error);
         }
-        console.log(pixelsToChange);
-        canvas.putImageData(imageData, 0, 0);
-    }).catch(error => {
-        console.log(error);
     })
 }

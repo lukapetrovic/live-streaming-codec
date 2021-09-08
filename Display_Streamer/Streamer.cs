@@ -3,6 +3,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace Display_Streamer
@@ -18,22 +19,22 @@ namespace Display_Streamer
         struct Pixel
         {
             // row/line
-            public int l;
+            public int row;
             // column
-            public int c;
+            public int column;
             // red
-            public int r;
+            public int red;
             // green
-            public int g;
+            public int green;
             // blue
-            public int b;
+            public int blue;
         }
 
         public MemoryStream capture(Rectangle captureArea)
         {
             if (!working)
             {
-                if(frame_one != null)
+                if (frame_one != null)
                 {
                     frame_zero = frame_one;
                 }
@@ -85,31 +86,36 @@ namespace Display_Streamer
                     Color pixel_new = new_frame.GetPixel(i, j);
                     if (pixel_old != pixel_new)
                     {
-                        pixels[pixelsChangedNum].l = j;
-                        pixels[pixelsChangedNum].c = i;
-                        pixels[pixelsChangedNum].r = pixel_new.R;
-                        pixels[pixelsChangedNum].g = pixel_new.G;
-                        pixels[pixelsChangedNum].b = pixel_new.B;
+                        pixels[pixelsChangedNum].row = j;
+                        pixels[pixelsChangedNum].column = i;
+                        pixels[pixelsChangedNum].red = pixel_new.R;
+                        pixels[pixelsChangedNum].green = pixel_new.G;
+                        pixels[pixelsChangedNum].blue = pixel_new.B;
                         pixelsChangedNum++;
                     }
                 }
             }
 
-            Pixel[] pixelsResized = new Pixel[pixelsChangedNum];
+            int structSize = 20;
+            byte[] arr = new byte[structSize * pixelsChangedNum];
+            // Initialize unmanged memory to hold the struct.
+            IntPtr pnt = Marshal.AllocHGlobal(structSize);
+
             for (int i = 0; i < pixelsChangedNum; i++)
             {
-                pixelsResized[i] = pixels[i];
+                // Copy the struct to unmanaged memory.
+                Marshal.StructureToPtr(pixels[i], pnt, false);
+                Marshal.Copy(pnt, arr, i * structSize, structSize);
             }
 
+            Marshal.FreeHGlobal(pnt);
+
             MemoryStream ms = new MemoryStream();
-            string json = JsonConvert.SerializeObject(pixelsResized);
-            byte[] jsonByte = Encoding.UTF8.GetBytes(json);
-            ms.Write(jsonByte, 0, jsonByte.Length);
+            ms.Write(arr, 0, arr.Length);
 
             working = false;
             msgNum++;
             return ms;
         }
     }
-
 }
