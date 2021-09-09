@@ -40,6 +40,7 @@ namespace Display_Streamer
             server = new WebSocketServer("ws://0.0.0.0:3000");
             server.Start(socket =>
             {
+                System.Timers.Timer screenshotTimer = new System.Timers.Timer();
                 socket.OnOpen = () =>
                 {
                     clients.Add(socket);
@@ -49,13 +50,13 @@ namespace Display_Streamer
                     {
                         label2.Invoke(incrCount);
                     }
-                    System.Timers.Timer screenshotTimer = new System.Timers.Timer();
                     screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, socket, streamer);
                     screenshotTimer.Interval = Config.refresh_rate;
                     screenshotTimer.Enabled = true;
                 };
                 socket.OnClose = () => 
                 {
+                    screenshotTimer.Enabled = false;
                     try
                     {
                         Console.WriteLine("Close!");

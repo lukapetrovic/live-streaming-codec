@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -65,7 +64,7 @@ namespace Display_Streamer
         private MemoryStream phaseOne(Bitmap new_frame)
         {
             MemoryStream stream = new MemoryStream();
-            new_frame.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            new_frame.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
             working = false;
             msgNum++;
             return stream;
