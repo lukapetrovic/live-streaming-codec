@@ -53,14 +53,25 @@ function phaseTwo(difference) {
     let imageData = canvas.getImageData(0, 0, img.width, img.height);
     let response = new Response(difference);
 
+    let residualBuffer = new ArrayBuffer(img.width * img.height);
+    let Uint8View = new Uint8Array(residualBuffer);
+
+    let counter = 0;
+
     response.arrayBuffer().then((buffer) => {
         try {
-            let view = new Int32Array(buffer);
-            for (let i = 0; i < view.length; i = i + 5) {
-                let pixelNum = (view[i + 1] * 4) + (view[i] * img.width * 4);
-                imageData.data[pixelNum] = view[i + 2];
-                imageData.data[pixelNum + 1] = view[i + 3];
-                imageData.data[pixelNum + 2] = view[i + 4];
+            let view = new Uint8Array(buffer);
+            let view2 = new Int32Array(buffer);
+            view.map((value, index) => {
+                if (index % 2 == 0) {
+                    for (let i = 0; i < value; i++) {
+                        Uint8View[counter++] = (view[index + 1] - 127) * 2;
+                    }
+                }
+            })
+            // Image Data - RGBA
+            for (let i = 0; i < Uint8View.length; i++) {
+                imageData.data[i * 4] += Uint8View[i];
             }
             canvas.putImageData(imageData, 0, 0);
 

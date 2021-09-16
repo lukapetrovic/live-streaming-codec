@@ -15,20 +15,6 @@ namespace Display_Streamer
         bool working = false;
         int msgNum = 1;
 
-        struct Pixel
-        {
-            // row/line
-            public int row;
-            // column
-            public int column;
-            // red
-            public int red;
-            // green
-            public int green;
-            // blue
-            public int blue;
-        }
-
         public MemoryStream capture(Rectangle captureArea)
         {
             if (!working)
@@ -44,12 +30,12 @@ namespace Display_Streamer
 
                 graphics.CopyFromScreen(captureArea.X, captureArea.Y, 0, 0, new Size(captureArea.Width, captureArea.Height), CopyPixelOperation.SourceCopy);
 
-                // Slanje prvog frejma
+                // Send first full frame
                 if (msgNum == 1)
                 {
                     return phaseOne(frame_one);
                 }
-                // Slanje razlike
+                // Send frame difference
                 else
                 {
                     return phaseTwo(captureArea, frame_zero, frame_one);
@@ -73,48 +59,110 @@ namespace Display_Streamer
         private MemoryStream phaseTwo(Rectangle captureArea, Bitmap old_frame, Bitmap new_frame)
         {
 
-            int pixelsChangedNum = 0;
-            Pixel[] pixels = new Pixel[captureArea.Width * captureArea.Height];
+            int pixelNum = captureArea.Width * captureArea.Height;
+            byte[] residualArrayRed = new byte[pixelNum];
+            byte[] residualArrayGreen = new byte[pixelNum];
+            byte[] residualArrayBlue = new byte[pixelNum];
 
-            // Koji pikseli su se promenili
+            int counter = 0;
+            // Residual array
             for (int i = 0; i < captureArea.Width; i++)
             {
                 for (int j = 0; j < captureArea.Height; j++)
                 {
                     Color pixel_old = old_frame.GetPixel(i, j);
                     Color pixel_new = new_frame.GetPixel(i, j);
-                    if (pixel_old != pixel_new)
-                    {
-                        pixels[pixelsChangedNum].row = j;
-                        pixels[pixelsChangedNum].column = i;
-                        pixels[pixelsChangedNum].red = pixel_new.R;
-                        pixels[pixelsChangedNum].green = pixel_new.G;
-                        pixels[pixelsChangedNum].blue = pixel_new.B;
-                        pixelsChangedNum++;
-                    }
+                    residualArrayRed[counter] = (byte)(((pixel_old.R - pixel_new.R) / 2) + 127);
+                    residualArrayGreen[counter] = (byte)((pixel_old.G - pixel_new.G + 127) / 2);
+                    residualArrayBlue[counter] = (byte)((pixel_old.B - pixel_new.B + 127) / 2);
+                    counter++;
                 }
             }
 
-            int structSize = 20;
-            byte[] arr = new byte[structSize * pixelsChangedNum];
-            // Initialize unmanged memory to hold the struct.
-            IntPtr pnt = Marshal.AllocHGlobal(structSize);
+            byte[] compressedRed = compressArray(residualArrayRed, pixelNum);
+            byte[] compressedGreen = compressArray(residualArrayGreen, pixelNum);
+            byte[] compressedBlue = compressArray(residualArrayBlue, pixelNum);
 
-            for (int i = 0; i < pixelsChangedNum; i++)
-            {
-                // Copy the struct to unmanaged memory.
-                Marshal.StructureToPtr(pixels[i], pnt, false);
-                Marshal.Copy(pnt, arr, i * structSize, structSize);
-            }
 
-            Marshal.FreeHGlobal(pnt);
+            byte[] finalArray = joinArrays(compressedRed, compressedGreen, compressedBlue);
+
+            byte[] test = insertMetadata(2, 2500, 8000, 11000);
 
             MemoryStream ms = new MemoryStream();
-            ms.Write(arr, 0, arr.Length);
+            ms.Write(test, 0, test.Length);
 
             working = false;
             msgNum++;
             return ms;
         }
+
+        private byte[] insertMetadata(int frameType, int redCount, int greenCount, int blueCount)
+        {
+            byte[] metadata = new byte[16];
+
+            byte[] frameTypeBytes = BitConverter.GetBytes(frameType);
+            frameTypeBytes.CopyTo(metadata, 0);
+            
+            byte[] redCountBytes = BitConverter.GetBytes(redCount);
+            redCountBytes.CopyTo(metadata, 4);
+
+            byte[] greenCountBytes = BitConverter.GetBytes(greenCount);
+            greenCountBytes.CopyTo(metadata, 8);
+
+            byte[] blueCountBytes = BitConverter.GetBytes(blueCount);
+            blueCountBytes.CopyTo(metadata, 12);
+
+            return metadata;
+        }
+
+        private byte[] joinArrays(byte[] redArray, byte[] greenArray, byte[] blueArray)
+        {
+            int totalSize = redArray.Length + greenArray.Length + blueArray.Length;
+            byte[] joinedArray = new byte[totalSize];
+            return joinedArray;
+        }
+
+        private byte[] compressArray(byte[] array, int numPixel)
+        {
+            int numSame = 0, numCompressed = 0;
+            int last, next;
+            byte[] compressedArray = new byte[numPixel];
+
+            last = array[0];
+
+            for (int i = 1; i < numPixel; i++)
+            {
+                next = array[i];
+                if (last != next && numSame > 254)
+                {
+                    compressedArray[numCompressed++] = (byte)numSame;
+                    compressedArray[numCompressed++] = (byte)last;
+                    last = next;
+                    numSame = 0;
+                }
+                else
+                {
+                    numSame++;
+                }
+            }
+
+            byte[] compressedArrayResized = resizeArray(compressedArray, numCompressed);
+
+
+            return compressedArrayResized;
+        }
+
+        private byte[] resizeArray(byte[] array, int compressNumPixel)
+        {
+            // Resize compressed array
+            byte[] compressedArrayResized = new byte[compressNumPixel];
+            for (int i = 0; i < compressNumPixel; i++)
+            {
+                compressedArrayResized[i] = array[i];
+            }
+
+            return compressedArrayResized;
+        }
+
     }
 }
