@@ -50,7 +50,10 @@ namespace Display_Streamer
         private MemoryStream phaseOne(Bitmap new_frame)
         {
             MemoryStream stream = new MemoryStream();
-            new_frame.Save(stream, System.Drawing.Imaging.ImageFormat.Bmp);
+            new_frame.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+
+            byte[] arrayWithMetadata = insertMetadata(stream.ToArray(), 1, 0, 0, 0);
+            stream.Write(arrayWithMetadata, 0, arrayWithMetadata.Length);
             working = false;
             msgNum++;
             return stream;
@@ -84,19 +87,19 @@ namespace Display_Streamer
             byte[] compressedBlue = compressArray(residualArrayBlue, pixelNum);
 
 
-            byte[] finalArray = joinArrays(compressedRed, compressedGreen, compressedBlue);
+            byte[] joinedArray = joinArrays(compressedRed, compressedGreen, compressedBlue);
 
-            byte[] test = insertMetadata(2, 2500, 8000, 11000);
+            byte[] arrayWithMetadata = insertMetadata(joinedArray, 2, compressedRed.Length, compressedGreen.Length, compressedBlue.Length);
 
             MemoryStream ms = new MemoryStream();
-            ms.Write(test, 0, test.Length);
+            ms.Write(arrayWithMetadata, 0, arrayWithMetadata.Length);
 
             working = false;
             msgNum++;
             return ms;
         }
 
-        private byte[] insertMetadata(int frameType, int redCount, int greenCount, int blueCount)
+        private byte[] insertMetadata(byte[] array, int frameType, int redCount, int greenCount, int blueCount)
         {
             byte[] metadata = new byte[16];
 
@@ -112,7 +115,11 @@ namespace Display_Streamer
             byte[] blueCountBytes = BitConverter.GetBytes(blueCount);
             blueCountBytes.CopyTo(metadata, 12);
 
-            return metadata;
+            byte[] extendedArray = new byte[array.Length + 16];
+            metadata.CopyTo(extendedArray, 0);
+            array.CopyTo(extendedArray, 15);
+
+            return extendedArray;
         }
 
         private byte[] joinArrays(byte[] redArray, byte[] greenArray, byte[] blueArray)
@@ -145,10 +152,7 @@ namespace Display_Streamer
                     numSame++;
                 }
             }
-
             byte[] compressedArrayResized = resizeArray(compressedArray, numCompressed);
-
-
             return compressedArrayResized;
         }
 

@@ -17,15 +17,26 @@ socket.onopen = (e) => {
 };
 
 socket.onmessage = (event) => {
-    if (msgNum == 1) {
-        console.log(`[message] Image recieved from the server`);
-        phaseOne(event.data);
-        msgNum++;
-    } else {
-        console.log(`[message] Frame difference recieved`);
-        phaseTwo(event.data);
-        msgNum++;
-    }
+
+    let data = new Response(event.data);
+
+    data.arrayBuffer().then((buffer) => {
+        try {
+
+            // 16 Bytes for metadata
+            let metadataBuffer = buffer.slice(0, 16);
+            let metadataView = new Int32Array(metadataBuffer);
+            
+            let byteView = new Uint8Array(buffer);
+            if (metadataView[0] == 1) {
+                insertFullFrame(byteView.slice(16));
+            } else {
+                insertCompressedFrame(byteView.slice(16), metadataView[1], metadataView[2], metadataView[3]);
+            }
+        } catch (error) {
+            console.log(`[error] ${error}`);
+        }
+    })
 };
 
 socket.onclose = (event) => {
@@ -42,41 +53,55 @@ socket.onerror = (error) => {
     console.log(`[error] ${error.message}`);
 };
 
-function phaseOne(blob) {
+function insertFullFrame(blob) {
     let urlCreator = window.URL || window.webkitURL;
     let imageUrl = urlCreator.createObjectURL(blob);
     img.src = imageUrl;
 }
 
-function phaseTwo(difference) {
+function insertCompressedFrame(dataBuffer, numRed, numGreen, numBlue) {
 
     let imageData = canvas.getImageData(0, 0, img.width, img.height);
-    let response = new Response(difference);
 
-    let residualBuffer = new ArrayBuffer(img.width * img.height);
-    let Uint8View = new Uint8Array(residualBuffer);
+    // Memory alocation
+    let redPixelsBuffer = new ArrayBuffer(img.width * img.height);
+    let greenPixelsBuffer = new ArrayBuffer(img.width * img.height);
+    let bluePixelsBuffer = new ArrayBuffer(img.width * img.height);
 
+    // Memory modification
+    let redPixelsView = new Uint8Array(redPixelsBuffer);
+    let greenPixelsView = new Uint8Array(greenPixelsBuffer);
+    let bluePixelsView = new Uint8Array(bluePixelsBuffer);
+
+    // Response data memory view
+    let dataView = new Uint8Array(dataBuffer);
+
+    // Decode pixels
+    for (let i = 0; i < dataView.length; i++) {
+        if (i < numRed) {
+            decodeArray(dataView, redPixelsView);
+        } else if (i < numGreen) {
+            decodeArray(dataView, greenPixelsView);
+        } else {
+            decodeArray(dataView, bluePixelsView);
+        }
+    }
+
+    // Image Data - RGBA
+    /* for (let i = 0; i < Uint8View.length; i++) {
+        imageData.data[i * 4] += Uint8View[i];
+    } */
+    canvas.putImageData(imageData, 0, 0);
+
+}
+
+function decodeArray(encodedArray, decodedArray) {
     let counter = 0;
-
-    response.arrayBuffer().then((buffer) => {
-        try {
-            let view = new Uint8Array(buffer);
-            let view2 = new Int32Array(buffer);
-            view.map((value, index) => {
-                if (index % 2 == 0) {
-                    for (let i = 0; i < value; i++) {
-                        Uint8View[counter++] = (view[index + 1] - 127) * 2;
-                    }
-                }
-            })
-            // Image Data - RGBA
-            for (let i = 0; i < Uint8View.length; i++) {
-                imageData.data[i * 4] += Uint8View[i];
+    encodedArray.map((value, index) => {
+        if (index % 2 == 0) {
+            for (let i = 0; i < value; i++) {
+                decodedArray[counter++] = (view[index + 1] - 127) * 2;
             }
-            canvas.putImageData(imageData, 0, 0);
-
-        } catch (error) {
-            console.log(error);
         }
     })
 }
