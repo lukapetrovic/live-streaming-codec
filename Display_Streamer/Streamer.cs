@@ -43,20 +43,24 @@ namespace Display_Streamer
             }
             else
             {
-                return new MemoryStream(new byte[5]);
+                byte[] errorMetadata = new byte[16];
+                errorMetadata[0] = 0;
+                return new MemoryStream(errorMetadata);
             }
         }
 
         private MemoryStream phaseOne(Bitmap new_frame)
         {
-            MemoryStream stream = new MemoryStream();
-            new_frame.Save(stream, System.Drawing.Imaging.ImageFormat.Png);
+            MemoryStream frameMem = new MemoryStream();
+            new_frame.Save(frameMem, System.Drawing.Imaging.ImageFormat.Png);
 
-            byte[] arrayWithMetadata = insertMetadata(stream.ToArray(), 1, 0, 0, 0);
-            stream.Write(arrayWithMetadata, 0, arrayWithMetadata.Length);
+            byte[] arrayWithMetadata = insertMetadata(frameMem.ToArray(), 1, 0, 0, 0);
+
+            MemoryStream byteFrameMem = new MemoryStream();
+            byteFrameMem.Write(arrayWithMetadata, 0, arrayWithMetadata.Length);
             working = false;
             msgNum++;
-            return stream;
+            return byteFrameMem;
         }
 
         private MemoryStream phaseTwo(Rectangle captureArea, Bitmap old_frame, Bitmap new_frame)
@@ -76,8 +80,8 @@ namespace Display_Streamer
                     Color pixel_old = old_frame.GetPixel(i, j);
                     Color pixel_new = new_frame.GetPixel(i, j);
                     residualArrayRed[counter] = (byte)(((pixel_old.R - pixel_new.R) / 2) + 127);
-                    residualArrayGreen[counter] = (byte)((pixel_old.G - pixel_new.G + 127) / 2);
-                    residualArrayBlue[counter] = (byte)((pixel_old.B - pixel_new.B + 127) / 2);
+                    residualArrayGreen[counter] = (byte)(((pixel_old.G - pixel_new.G) / 2) + 127);
+                    residualArrayBlue[counter] = (byte)(((pixel_old.B - pixel_new.B) / 2) + 127);
                     counter++;
                 }
             }
@@ -117,7 +121,7 @@ namespace Display_Streamer
 
             byte[] extendedArray = new byte[array.Length + 16];
             metadata.CopyTo(extendedArray, 0);
-            array.CopyTo(extendedArray, 15);
+            array.CopyTo(extendedArray, 16);
 
             return extendedArray;
         }
@@ -126,32 +130,40 @@ namespace Display_Streamer
         {
             int totalSize = redArray.Length + greenArray.Length + blueArray.Length;
             byte[] joinedArray = new byte[totalSize];
+            redArray.CopyTo(joinedArray, 0);
+            greenArray.CopyTo(joinedArray, redArray.Length);
+            blueArray.CopyTo(joinedArray, redArray.Length + greenArray.Length);
+
             return joinedArray;
         }
 
         private byte[] compressArray(byte[] array, int numPixel)
         {
-            int numSame = 0, numCompressed = 0;
-            int last, next;
-            byte[] compressedArray = new byte[numPixel];
+            int numSame = 1, numCompressed = 0;
+            int last;
+            byte[] compressedArray = new byte[numPixel * 2];
 
             last = array[0];
 
             for (int i = 1; i < numPixel; i++)
             {
-                next = array[i];
-                if (last != next && numSame > 254)
+                if (last != array[i] || numSame > 254)
                 {
                     compressedArray[numCompressed++] = (byte)numSame;
                     compressedArray[numCompressed++] = (byte)last;
-                    last = next;
-                    numSame = 0;
+                    last = array[i];
+                    numSame = 1;
                 }
                 else
                 {
                     numSame++;
                 }
             }
+
+            // Add last pair
+            compressedArray[numCompressed++] = (byte)numSame;
+            compressedArray[numCompressed++] = (byte)last;
+
             byte[] compressedArrayResized = resizeArray(compressedArray, numCompressed);
             return compressedArrayResized;
         }

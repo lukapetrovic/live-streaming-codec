@@ -79,7 +79,8 @@ namespace Display_Streamer
         private void OnTimedEvent(ElapsedEventArgs e, IWebSocketConnection socket, Streamer streamer)
         {
             image = streamer.capture(captureArea);
-            socket.Send(image.ToArray());
+            byte[] sendArray = image.ToArray();
+            socket.Send(sendArray);
         }
 
         public void increaseDeviceCount()
