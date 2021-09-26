@@ -2,8 +2,6 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace Display_Streamer
 
@@ -17,6 +15,7 @@ namespace Display_Streamer
 
         public MemoryStream capture(Rectangle captureArea)
         {
+
             if (!working)
             {
                 if (frame_one != null)
@@ -73,12 +72,12 @@ namespace Display_Streamer
 
             int counter = 0;
             // Residual array
-            for (int i = 0; i < captureArea.Width; i++)
+            for (int i = 0; i < captureArea.Height; i++)
             {
-                for (int j = 0; j < captureArea.Height; j++)
+                for (int j = 0; j < captureArea.Width; j++)
                 {
-                    Color pixel_old = old_frame.GetPixel(i, j);
-                    Color pixel_new = new_frame.GetPixel(i, j);
+                    Color pixel_old = old_frame.GetPixel(j, i);
+                    Color pixel_new = new_frame.GetPixel(j, i);
                     residualArrayRed[counter] = (byte)(((pixel_old.R - pixel_new.R) / 2) + 127);
                     residualArrayGreen[counter] = (byte)(((pixel_old.G - pixel_new.G) / 2) + 127);
                     residualArrayBlue[counter] = (byte)(((pixel_old.B - pixel_new.B) / 2) + 127);

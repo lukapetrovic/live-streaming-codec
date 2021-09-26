@@ -25,7 +25,7 @@ socket.onmessage = (event) => {
 
             // 16 Bytes for metadata
             let metadataBuffer = buffer.slice(0, 16);
-            let metadataView = new Uint32Array(metadataBuffer);
+            let metadataView = new Int32Array(metadataBuffer);
 
             let byteView = new Uint8Array(buffer);
             if (metadataView[0] == 1) {
@@ -66,14 +66,10 @@ function insertCompressedFrame(dataBuffer, numRed, numGreen, numBlue) {
     let pixelNum = img.width * img.height;
 
     // Memory alocation
-    let redPixelsBuffer = new ArrayBuffer(pixelNum);
-    let greenPixelsBuffer = new ArrayBuffer(pixelNum);
-    let bluePixelsBuffer = new ArrayBuffer(pixelNum);
+    let redPixelsBuffer = new Array(pixelNum);
+    let greenPixelsBuffer = new Array(pixelNum);
+    let bluePixelsBuffer = new Array(pixelNum);
 
-    // Memory modification
-    let redPixelsView = new Uint8Array(redPixelsBuffer);
-    let greenPixelsView = new Uint8Array(greenPixelsBuffer);
-    let bluePixelsView = new Uint8Array(bluePixelsBuffer);
 
     // Response data memory view
     let dataView = new Uint8Array(dataBuffer);
@@ -88,15 +84,15 @@ function insertCompressedFrame(dataBuffer, numRed, numGreen, numBlue) {
         if (index % 2 == 0) {
             if (index < numRed) {
                 for (let i = 0; i < value; i++) {
-                    redPixelsView[redCounter++] = (dataView[index + 1] - 127) * 2;
+                    redPixelsBuffer[redCounter++] = (dataView[index + 1] - 127) * 2;
                 }
             } else if (index < numRed + numGreen) {
                 for (let i = 0; i < value; i++) {
-                    greenPixelsView[greenCounter++] = (dataView[index + 1] - 127) * 2;
+                    greenPixelsBuffer[greenCounter++] = (dataView[index + 1] - 127) * 2;
                 }
             } else {
                 for (let i = 0; i < value; i++) {
-                    bluePixelsView[blueCounter++] = (dataView[index + 1] - 127) * 2;
+                    bluePixelsBuffer[blueCounter++] = (dataView[index + 1] - 127) * 2;
                 }
             }
         }
@@ -104,9 +100,12 @@ function insertCompressedFrame(dataBuffer, numRed, numGreen, numBlue) {
 
     // Image Data - RGBA
     for (let i = 0; i < pixelNum; i++) {
-        imageData.data[i * 4] -= redPixelsView[i];
-        imageData.data[(i * 4) + 1] -= greenPixelsView[i];
-        imageData.data[(i * 4) + 2] -= bluePixelsView[i];
+        let red = imageData.data[(i * 4) + 0] - redPixelsBuffer[i];
+        let green = imageData.data[(i * 4) + 1] - greenPixelsBuffer[i];
+        let blue = imageData.data[(i * 4) + 2] - bluePixelsBuffer[i];
+        imageData.data[(i * 4) + 0] = red;
+        imageData.data[(i * 4) + 1] = green;
+        imageData.data[(i * 4) + 2] = blue;
     }
     canvas.putImageData(imageData, 0, 0);
 
