@@ -11,26 +11,26 @@ namespace Display_Streamer
         Bitmap frame_zero;
         Bitmap frame_one;
         bool working = false;
-        int msgNum = 1;
+        int msgNum = 0;
 
         public MemoryStream capture(Rectangle captureArea)
         {
 
             if (!working)
             {
+                working = true;
                 if (frame_one != null)
                 {
                     frame_zero = frame_one;
                 }
 
-                working = true;
                 frame_one = new Bitmap(captureArea.Width, captureArea.Height, PixelFormat.Format32bppArgb);
                 Graphics graphics = Graphics.FromImage(frame_one);
 
                 graphics.CopyFromScreen(captureArea.X, captureArea.Y, 0, 0, new Size(captureArea.Width, captureArea.Height), CopyPixelOperation.SourceCopy);
 
                 // Send first full frame
-                if (msgNum == 1)
+                if (msgNum % 5 == 0)
                 {
                     return phaseOne(frame_one);
                 }
@@ -57,8 +57,10 @@ namespace Display_Streamer
 
             MemoryStream byteFrameMem = new MemoryStream();
             byteFrameMem.Write(arrayWithMetadata, 0, arrayWithMetadata.Length);
+
             working = false;
             msgNum++;
+
             return byteFrameMem;
         }
 

@@ -32,7 +32,7 @@ namespace Display_Streamer
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Config.refresh_rate = (comboBox2.SelectedIndex) * 1000;
+            Config.refresh_rate = (comboBox2.SelectedIndex + 1) * 1000;
             //Hide the Form
             this.Hide();
             System.Threading.Thread.Sleep(250);

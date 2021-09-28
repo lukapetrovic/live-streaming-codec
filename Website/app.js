@@ -30,8 +30,10 @@ socket.onmessage = (event) => {
             let byteView = new Uint8Array(buffer);
             if (metadataView[0] == 1) {
                 insertFullFrame(byteView.slice(16));
-            } else {
+            } else if (metadataView[0] == 2) {
                 insertCompressedFrame(byteView.slice(16), metadataView[1], metadataView[2], metadataView[3]);
+            } else {
+                return;
             }
         } catch (error) {
             console.log(`[error] ${error}`);

@@ -92,6 +92,10 @@ namespace Display_Streamer
         public void decreaseDeviceCount()
         {
             connectedDevices--;
+            if(connectedDevices < 0)
+            {
+                connectedDevices = 0;
+            }
             label2.Text = connectedDevices.ToString();
         }
 
