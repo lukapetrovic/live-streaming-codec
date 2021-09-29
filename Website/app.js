@@ -10,14 +10,18 @@ img.onload = () => {
     canvas.drawImage(img, 0, 0);
 };
 
+let msgBox = document.getElementById("message-box");
+
 socket.onopen = (e) => {
     console.log("[open] Connection established");
     console.log("Sending to server");
+
     socket.send("Connection established");
 };
 
 socket.onmessage = (event) => {
 
+    msgBox.style = "display: none";
     let data = new Response(event.data);
 
     data.arrayBuffer().then((buffer) => {
@@ -44,10 +48,12 @@ socket.onmessage = (event) => {
 socket.onclose = (event) => {
     if (event.wasClean) {
         console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+        msgBox.textContent = `Connection closed cleanly, code=${event.code} reason=${event.reason}`;
     } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
         console.log('[close] Connection died');
+        msgBox.textContent = "Connection died";
     }
 };
 

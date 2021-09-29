@@ -11,3 +11,8 @@ body {
     max-height: 100vh;
     margin: 0 auto;
 }
+
+#message-box {
+    margin-top: 50px;
+    text-align: center;
+}
