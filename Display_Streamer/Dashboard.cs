@@ -21,18 +21,17 @@ namespace Display_Streamer
             }
             comboBox1.SelectedIndex = 0;
 
-            comboBox2.Items.Add("1s");
-            comboBox2.Items.Add("2s");
-            comboBox2.Items.Add("3s");
-            comboBox2.Items.Add("4s");
-            comboBox2.Items.Add("5s");
-            comboBox2.SelectedIndex = 2;
+            comboBox2.Items.Add("1/2 fps");
+            comboBox2.Items.Add("1 fps");
+            comboBox2.Items.Add("1.5 fps");
+            comboBox2.Items.Add("2 fps");
+            comboBox2.SelectedIndex = 1;
 
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Config.refresh_rate = (comboBox2.SelectedIndex + 1) * 1000;
+            Config.refresh_rate = 500 * (comboBox2.SelectedIndex + 1);
             //Hide the Form
             this.Hide();
             System.Threading.Thread.Sleep(250);

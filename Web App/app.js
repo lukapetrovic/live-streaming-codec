@@ -1,5 +1,8 @@
-let socket = new WebSocket("ws://172.94.18.86:3000");
+let socket = new WebSocket(`ws://${ip_address}:3000`);
+
 let msgNum = 1;
+
+let firstFullFrame = false;
 
 let canvas = document.getElementById('canvas').getContext('2d');
 let canvasDOM = document.getElementById('canvas');
@@ -21,21 +24,25 @@ socket.onopen = (e) => {
 
 socket.onmessage = (event) => {
 
-    msgBox.style = "display: none";
+    msgBox.textContent = "Server synchronization...";
     let data = new Response(event.data);
 
     data.arrayBuffer().then((buffer) => {
         try {
 
             // 16 Bytes for metadata
+            // 1 - Full frame
+            // 2 - Difference
             let metadataBuffer = buffer.slice(0, 16);
-            let metadataView = new Int32Array(metadataBuffer);
+            let metadata = new Int32Array(metadataBuffer);
 
             let byteView = new Uint8Array(buffer);
-            if (metadataView[0] == 1) {
+            if (metadata[0] == 1) {
                 insertFullFrame(byteView.slice(16));
-            } else if (metadataView[0] == 2) {
-                insertCompressedFrame(byteView.slice(16), metadataView[1], metadataView[2], metadataView[3]);
+                firstFullFrame = true;
+                msgBox.style = "display: none";
+            } else if (metadata[0] == 2 && firstFullFrame == true) {
+                insertCompressedFrame(byteView.slice(16), metadata[1], metadata[2], metadata[3]);
             } else {
                 return;
             }
@@ -48,12 +55,14 @@ socket.onmessage = (event) => {
 socket.onclose = (event) => {
     if (event.wasClean) {
         console.log(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-        msgBox.textContent = `Connection closed cleanly, code=${event.code} reason=${event.reason}`;
+        msgBox.textContent = `Connection closed cleanly`;
+        msgBox.style = "display: block";
     } else {
         // e.g. server process killed or network down
         // event.code is usually 1006 in this case
         console.log('[close] Connection died');
         msgBox.textContent = "Connection died";
+        msgBox.style = "display: block";
     }
 };
 

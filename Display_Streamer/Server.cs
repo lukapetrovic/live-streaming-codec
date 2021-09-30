@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Timers;
 using System.Windows.Forms;
+using System.Diagnostics;
 
 namespace Display_Streamer
 {
@@ -20,6 +21,9 @@ namespace Display_Streamer
 
         //Websocket clients container
         List<IWebSocketConnection> clients = new List<IWebSocketConnection>();
+
+        // Server send rate
+        System.Timers.Timer screenshotTimer = new System.Timers.Timer();
 
 
         public Server(Rectangle captureRect)
@@ -38,25 +42,28 @@ namespace Display_Streamer
             ChangingDeviceCount descrCount = new ChangingDeviceCount(decreaseDeviceCount);
 
             server = new WebSocketServer("ws://0.0.0.0:3000");
+
+            Streamer streamer = new Streamer();
+
+            screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, clients, streamer);
+            screenshotTimer.Interval = Config.refresh_rate;
+            screenshotTimer.Enabled = true;
+
             server.Start(socket =>
             {
-                System.Timers.Timer screenshotTimer = new System.Timers.Timer();
+                
                 socket.OnOpen = () =>
                 {
                     clients.Add(socket);
                     Console.WriteLine("Open!");
-                    Streamer streamer = new Streamer();
                     if (!label2.IsDisposed)
                     {
                         label2.Invoke(incrCount);
                     }
-                    screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, socket, streamer);
-                    screenshotTimer.Interval = Config.refresh_rate;
-                    screenshotTimer.Enabled = true;
+
                 };
                 socket.OnClose = () => 
                 {
-                    screenshotTimer.Enabled = false;
                     try
                     {
                         Console.WriteLine("Close!");
@@ -76,11 +83,22 @@ namespace Display_Streamer
         }
 
         // Specify what you want to happen when the Elapsed event is raised.
-        private void OnTimedEvent(ElapsedEventArgs e, IWebSocketConnection socket, Streamer streamer)
+        private void OnTimedEvent(ElapsedEventArgs e, List<IWebSocketConnection> clients, Streamer streamer)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+
             image = streamer.capture(captureArea);
             byte[] sendArray = image.ToArray();
-            socket.Send(sendArray);
+
+            sw.Stop();
+            Debug.WriteLine("Elapsed={0}", sw.Elapsed);
+
+
+            for (int i = 0; i < clients.Count; i++)
+            {
+                clients[i].Send(sendArray);
+            }
         }
 
         public void increaseDeviceCount()
@@ -113,6 +131,7 @@ namespace Display_Streamer
 
         private void closeServer()
         {
+            screenshotTimer.Enabled = false;
             for (int i = 0; i < clients.Count; i++)
             {
                 clients[i].Close();
