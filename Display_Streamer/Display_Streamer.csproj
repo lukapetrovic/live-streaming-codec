@@ -6,6 +6,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <ApplicationIcon>Streamer_Icon.ico</ApplicationIcon>
+    <AssemblyName>Streaming Server</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

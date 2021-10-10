@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Drawing;
 using System.Collections.Generic;
 
 namespace Display_Streamer
@@ -21,10 +20,11 @@ namespace Display_Streamer
             }
             comboBox1.SelectedIndex = 0;
 
-            comboBox2.Items.Add("1/2 fps");
-            comboBox2.Items.Add("1 fps");
-            comboBox2.Items.Add("1.5 fps");
-            comboBox2.Items.Add("2 fps");
+            comboBox2.Items.Add("0,5s");
+            comboBox2.Items.Add("1s");
+            comboBox2.Items.Add("1,5s");
+            comboBox2.Items.Add("2s");
+
             comboBox2.SelectedIndex = 1;
 
         }
