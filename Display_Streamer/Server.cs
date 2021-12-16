@@ -18,21 +18,17 @@ namespace Display_Streamer
         int connectedDevices = 0;
         delegate void ChangingDeviceCount();
 
-        //Websocket clients container
+        // Websocket clients list
         List<IWebSocketConnection> clients = new List<IWebSocketConnection>();
-
-        // Server send rate
+        // Timer executes code at specified time intervals
         System.Timers.Timer screenshotTimer = new System.Timers.Timer();
 
 
         public Server(Rectangle captureRect)
         {
             InitializeComponent();
-
             captureArea = captureRect;
-
             start();
-
         }
 
         private void start()
@@ -40,12 +36,16 @@ namespace Display_Streamer
             ChangingDeviceCount incrCount = new ChangingDeviceCount(increaseDeviceCount);
             ChangingDeviceCount descrCount = new ChangingDeviceCount(decreaseDeviceCount);
 
+            // Server starts listening on port 3000
             server = new WebSocketServer("ws://0.0.0.0:3000");
-
+            // Package and compression of frames
             Streamer streamer = new Streamer();
 
+            // Timer event set to a function to be raised every clock tick
             screenshotTimer.Elapsed += (sender, arguments) => OnTimedEvent(arguments, clients, streamer);
+            // Event interval
             screenshotTimer.Interval = Config.refresh_rate;
+            // Start the timer
             screenshotTimer.Enabled = true;
 
             server.Start(socket =>
@@ -81,19 +81,15 @@ namespace Display_Streamer
             });
         }
 
-        // Specify what you want to happen when the Elapsed event is raised.
+        // Send a compressed package to all clients when the event is raised 
         private void OnTimedEvent(ElapsedEventArgs e, List<IWebSocketConnection> clients, Streamer streamer)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-
+            // Get compressed image from selected coordinates
             image = streamer.capture(captureArea);
+            // Convert to bytes
             byte[] sendArray = image.ToArray();
 
-            sw.Stop();
-            Debug.WriteLine("Elapsed={0}", sw.Elapsed);
-
-
+            // Send the byte data to every connected device
             for (int i = 0; i < clients.Count; i++)
             {
                 clients[i].Send(sendArray);
