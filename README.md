@@ -7,6 +7,12 @@ The transfer server was created using the .NET development environment using the
 
 The client side uses a web browser as the image display interface, so the web application is built using standard web technologies such as JavaScript language, canvas element for pixel processing and web socket for network communication with the transmission server. The client's role is to decode packets, synchronize with the server, and display the image.
 
+| System | Transport | Source selection | Codec | Clients |
+| --- | --- | --- | --- | --- |
+| Youtube live (standard use) | RTMP (Real Time Messaging Protocol) | OBS Studio | H.264 | Browser, mobile application, tv |
+| The system described in this work | Web socket | Developed using windows libraries | Uses quantization technique, residuals between frames, sequence coding | Browser |
+
+
 ## Code
 
 ### Server packages
