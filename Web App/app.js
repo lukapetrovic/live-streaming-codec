@@ -31,8 +31,8 @@ socket.onmessage = (event) => {
     // Convert binary to array buffer data
     data.arrayBuffer().then((buffer) => {
         try {
-            // 4 Bytes for metadata, first byte - package code
-            // Code 0 - Server rror
+            // 16 Bytes for metadata, first 4 bytes - package code
+            // Code 0 - Server error
             // Code 1 - Sync package
             // Code 2 - Frame difference package
             let metadataBuffer = buffer.slice(0, 16);

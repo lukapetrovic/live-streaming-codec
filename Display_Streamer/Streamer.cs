@@ -114,6 +114,7 @@ namespace Display_Streamer
             return ms;
         }
 
+        // Needs 4 bytes per value for big values of pixel numbers
         private byte[] insertMetadata(byte[] array, int frameType, int redCount, int greenCount, int blueCount)
         {
             byte[] metadata = new byte[16];
