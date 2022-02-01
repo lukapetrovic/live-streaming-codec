@@ -49,6 +49,21 @@ Run length encoding is a type of compression algorithm where no information is l
 
 ![image](https://user-images.githubusercontent.com/3235618/151978481-b208142e-5f7c-4a3a-b16f-3fba9d80e4ca.png)
 
+## Results
+
+The following is a comparison of the codec described in this paper and the H.264 codec most commonly used for real-time video transmission. The transmission was tested on a Windows computer with an AMD Ryzen 5 2500U processor and 8 GB of RAM.
+
+Internet bandwidth required for each connection, where a game of chess is transmitted in which changes occur on the board with figures, with a timer where the remaining time changes and the list of previous moves, screen resolution 1280x720, averages 240 kb/s, or for 10 connections 2.3 mb/s. As compression is performed on a single core, in order to achieve a higher compression speed, the highest possible performance of a single processor core is required. To avoid frequent movements, 1 frame per second is used to save bandwidth.
+
+The H.264 codec is used for a wide range of formats, from low-latency real-time Internet transmission to high-quality television and cinema. As the codec is of the general type, the compression will not primarily depend on the type of scene, but the results will be similar for all types of scenes, but the quality can be further improved by investing additional processing power. The default settings for this real-time codec are the use of 30 frames per second and constant bitrate.
+
+The following table shows the results of the codec described in this work and the H.264 codec which is among the current leaders in video compression. The codec described in the paper achieves better compression than H.264 on scenes with very little movement in the image, while the advantage in favor of H.264 is increasing with the amount of changes in the scene.
+
+| Scene type | Resolution | Codec described | H.264 |
+| --- | --- | --- | --- |
+| Chess game | 1280x720 | 160 - 960 kb/s | 3600 kb/s |
+| Surveillance camera | 1280x720 | 160 – 8192 kb/s | 3600 kb/s |
+| Music video | 1280x720 | 16384 kb/s | 3600 kb/s |
 
 ## Installation
 
