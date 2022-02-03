@@ -46,7 +46,7 @@ socket.onmessage = (event) => {
                 insertFullFrame(byteView.slice(16));
                 firstFullFrame = true;
                 msgBox.style = "display: none";
-              // Skip if sync package has not arrived yet
+                // Skip if sync package has not arrived yet
             } else if (metadata[0] == 2 && firstFullFrame == true) {
                 insertCompressedFrame(byteView.slice(16), metadata[1], metadata[2], metadata[3]);
             } else {
@@ -84,8 +84,11 @@ function insertFullFrame(byteArray) {
     img.src = imageUrl;
 }
 
-function insertCompressedFrame(dataBuffer, numRed, numGreen, numBlue) {
+function insertCompressedFrame(dataBuffer, numRed, numGreen) {
 
+    const LIMITER = 127;
+    const PIXEL_SIZE = 4;
+    const EVEN = 2;
     let imageData = canvas.getImageData(0, 0, img.width, img.height);
     let pixelNum = img.width * img.height;
 
@@ -104,34 +107,34 @@ function insertCompressedFrame(dataBuffer, numRed, numGreen, numBlue) {
 
     // Unpack data using reverse run length encoding
     dataView.map((value, index) => {
-        if (index % 2 == 0) {
-            if (index < numRed) {
-                for (let i = 0; i < value; i++) {
-                    redPixelsBuffer[redCounter++] = (dataView[index + 1] - 127) * 2;
-                }
-            } else if (index < numRed + numGreen) {
-                for (let i = 0; i < value; i++) {
-                    greenPixelsBuffer[greenCounter++] = (dataView[index + 1] - 127) * 2;
-                }
-            } else {
-                for (let i = 0; i < value; i++) {
-                    bluePixelsBuffer[blueCounter++] = (dataView[index + 1] - 127) * 2;
-                }
+        if (index % EVEN != 0) {
+            return;
+        }
+        if (index < numRed) {
+            for (let i = 0; i < value; i++) {
+                redPixelsBuffer[redCounter++] = (dataView[index + 1] - LIMITER) * 2;
+            }
+        } else if (index < numRed + numGreen) {
+            for (let i = 0; i < value; i++) {
+                greenPixelsBuffer[greenCounter++] = (dataView[index + 1] - LIMITER) * 2;
+            }
+        } else {
+            for (let i = 0; i < value; i++) {
+                bluePixelsBuffer[blueCounter++] = (dataView[index + 1] - LIMITER) * 2;
             }
         }
     })
 
-    // Substract the base pixel values from the frame residuals
+    // Substract base pixel values from frame residuals
     for (let i = 0; i < pixelNum; i++) {
-        let red = imageData.data[(i * 4) + 0] - redPixelsBuffer[i];
-        let green = imageData.data[(i * 4) + 1] - greenPixelsBuffer[i];
-        let blue = imageData.data[(i * 4) + 2] - bluePixelsBuffer[i];
-        
-        imageData.data[(i * 4) + 0] = red;
-        imageData.data[(i * 4) + 1] = green;
-        imageData.data[(i * 4) + 2] = blue;
-    }
-    // Put the new values on the canvas
-    canvas.putImageData(imageData, 0, 0);
+        let red = imageData.data[(i * PIXEL_SIZE) + 0] - redPixelsBuffer[i];
+        let green = imageData.data[(i * PIXEL_SIZE) + 1] - greenPixelsBuffer[i];
+        let blue = imageData.data[(i * PIXEL_SIZE) + 2] - bluePixelsBuffer[i];
 
+        imageData.data[(i * PIXEL_SIZE) + 0] = red;
+        imageData.data[(i * PIXEL_SIZE) + 1] = green;
+        imageData.data[(i * PIXEL_SIZE) + 2] = blue;
+    }
+    // Put new values on the canvas
+    canvas.putImageData(imageData, 0, 0);
 }
